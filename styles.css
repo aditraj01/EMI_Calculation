@@ -1,0 +1,415 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(to right, #2196F3, #4CAF50);
+    color: white;
+    padding: 20px 30px;
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    margin-right: 15px;
+}
+
+.circle {
+    width: 40px;
+    height: 40px;
+    background-color: #FFD700;
+    border-radius: 50%;
+}
+
+h1 {
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.tabs {
+    display: flex;
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #eee;
+}
+
+.tab {
+    padding: 15px 30px;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: #FFD700;
+    color: #333;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tab:last-child {
+    border-right: none;
+}
+
+.tab:hover {
+    opacity: 0.8;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.tab.active {
+    background-color: #FF9800;
+    color: white;
+}
+
+.content-wrapper {
+    display: flex;
+    padding: 30px;
+}
+
+.calculator-container {
+    flex: 1;
+    padding-right: 30px;
+}
+
+.chart-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-left: 1px solid #eee;
+    padding-left: 30px;
+}
+
+.tab-content {
+    display: none;
+    background-color: #FFF8E1;
+    padding: 25px;
+    border-radius: 10px;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.5s ease forwards;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+}
+
+.time-group .time-inputs {
+    display: flex;
+    gap: 20px;
+}
+
+.time-inputs div {
+    flex: 1;
+    position: relative;
+}
+
+.time-inputs span {
+    display: block;
+    margin-top: 5px;
+    font-size: 14px;
+    color: #666;
+}
+
+.calculate-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    margin: 25px 0;
+    background: linear-gradient(to right, #FF9800, #FF5722);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.calculate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.calculate-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.result-container {
+    background-color: #FFF9C4;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px dashed #e0e0e0;
+}
+
+.result-item:last-child {
+    border-bottom: none;
+}
+
+.result-label {
+    font-weight: 500;
+    color: #555;
+}
+
+.result-value {
+    font-weight: 600;
+    color: #333;
+}
+
+.pie-chart-wrapper {
+    margin: 30px 0;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pie-chart {
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    background-color: #f5f5f5; /* Light background */
+}
+
+/* Create the donut hole effect */
+.pie-chart::after {
+    content: '';
+    position: absolute;
+    top: 25%;
+    left: 25%;
+    width: 50%;
+    height: 50%;
+    background-color: white;
+    border-radius: 50%;
+    z-index: 4; /* Make sure it's above segments */
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Update the segment colors to match your image */
+.principal-segment {
+    background-color: rgba(232, 237, 250, 0.9); /* Very light blue */
+}
+
+.interest-segment {
+    background-color: rgba(82, 109, 254, 0.9); /* Bright blue */
+}
+
+/* Move the EMI text display outside the chart */
+.monthly-emi {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: transparent; /* Make background transparent */
+    width: 120px;
+    height: 120px;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 5; /* Above the donut hole */
+    box-shadow: none; /* Remove shadow */
+    border: none; /* Remove border */
+}
+
+.monthly-emi span {
+    font-size: 22px;
+    margin-bottom: 5px;
+    color: #FF9800;
+}
+
+.monthly-emi div {
+    font-size: 14px;
+    color: #666;
+}
+
+.chart-legend {
+    display: flex;
+    gap: 20px;
+    margin-top: 15px;
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.color-box {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    border-radius: 3px;
+}
+
+.principal-color {
+    background-color: rgba(232, 237, 250, 0.9);
+}
+
+.interest-color {
+    background-color: rgba(82, 109, 254, 0.9);
+}
+
+.percentage-info {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    font-weight: 500;
+}
+
+.percentage-info span {
+    font-weight: 600;
+    color: #333;
+}
+
+h2 {
+    color: #333;
+    font-size: 24px;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes updateValue {
+    0% {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse-animation {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pulse-animation {
+    animation: pulse-animation 0.5s ease;
+}
+
+.result-value.updated {
+    animation: updateValue 0.5s ease forwards;
+}
+
+@media (max-width: 900px) {
+    .content-wrapper {
+        flex-direction: column;
+    }
+    .calculator-container {
+        padding-right: 0;
+        margin-bottom: 30px;
+    }
+    .chart-container {
+        border-left: none;
+        border-top: 1px solid #eee;
+        padding-left: 0;
+        padding-top: 30px;
+    }
+}
+
+@media (max-width: 600px) {
+    .tabs {
+        flex-direction: column;
+    }
+    .tab {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .time-group .time-inputs {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
