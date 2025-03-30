@@ -97,15 +97,15 @@ function calculateEMI(tabType) {
     const years = parseInt(document.getElementById(`${prefix}${prefix ? 'Y' : 'y'}ears`).value) || 0;
     const months = parseInt(document.getElementById(`${prefix}${prefix ? 'M' : 'm'}onths`).value) || 0;
 
-    if(downPayment > principal){
-        const error = document.getElementById("error");
-        error.style.color = "red";
-        error.innerHTML = "Principal Amount can not be less than Down payment"
-        setTimeout(() => {
-            error.innerHTML = ""
-        }, 5000);
-        return;
-    }
+    // if(downPayment > principal){
+    //     const error = document.getElementById("error");
+    //     error.style.color = "red";
+    //     error.innerHTML = "Principal Amount can not be less than Down payment"
+    //     setTimeout(() => {
+    //         error.innerHTML = ""
+    //     }, 5000);
+    //     return;
+    // }
     
     // Calculate loan amount (principal - down payment)
     const loanAmount = principal - downPayment;
@@ -254,3 +254,116 @@ const carResult = calculateEMI('car');
 // Set initial pie chart to the current tab
 updatePieChart(personalResult.loanAmount, personalResult.totalInterest);
 document.getElementById('chartEmi').textContent = formatCurrency(personalResult.emi);
+
+// add some features to the calculator -> the downpayment should be less than the principal amount ||-> by Aniket 
+
+function validateDownPayment(principalId, downPaymentId) {
+    const principalInput = document.getElementById(principalId);
+    const downPaymentInput = document.getElementById(downPaymentId);
+
+    // Create an error message element dynamically
+    let errorMessage = document.createElement("div");
+    errorMessage.style.color = "red";
+    errorMessage.style.fontSize = "14px";
+    errorMessage.style.marginTop = "5px";
+    errorMessage.style.display = "none"; // Initially hidden
+    downPaymentInput.parentNode.appendChild(errorMessage);
+
+    downPaymentInput.addEventListener("input", function () {
+        // Aditya you have to do that ❤️
+        if (parseFloat(downPaymentInput.value) > parseFloat(principalInput.value)) {
+            downPaymentInput.style.border = "2px solid red";
+            errorMessage.textContent = "⚠️ Down payment cannot be greater than the principal amount.";
+            errorMessage.style.display = "block";
+        } else {
+            downPaymentInput.style.border = "";
+            errorMessage.style.display = "none";
+        }
+    });
+
+    principalInput.addEventListener("input", function () {
+        // Revalidate when the principal amount changes
+        if (parseFloat(downPaymentInput.value) > parseFloat(principalInput.value)) {
+            downPaymentInput.style.border = "2px solid red";
+            errorMessage.textContent = "⚠️ Down payment cannot be greater than the principal amount.";
+            errorMessage.style.display = "block";
+        } else {
+            downPaymentInput.style.border = "";
+            errorMessage.style.display = "none";
+        }
+    });
+}
+
+//add validation checking for principle loan rate and years and months -> by Aniket
+// Function to check required fields on button click
+function validateInputs(principalId, rateId, yearId, monthId, btnId) {
+    const principalInput = document.getElementById(principalId);
+    const rateInput = document.getElementById(rateId);
+    const yearInput = document.getElementById(yearId);
+    const monthInput = document.getElementById(monthId);
+    const calculateBtn = document.getElementById(btnId);
+
+    function showError(input, message) {
+        let errorMessage = input.parentNode.querySelector(".error-message");
+        if (!errorMessage) {
+            errorMessage = document.createElement("div");
+            errorMessage.classList.add("error-message");
+            errorMessage.style.color = "red";
+            errorMessage.style.fontSize = "14px";
+            errorMessage.style.marginTop = "5px";
+            input.parentNode.appendChild(errorMessage);
+        }
+        errorMessage.textContent = message;
+        errorMessage.style.display = "block";
+        input.style.border = "2px solid red";
+    }
+
+    function clearError(input) {
+        let errorMessage = input.parentNode.querySelector(".error-message");
+        if (errorMessage) errorMessage.style.display = "none";
+        input.style.border = "";
+    }
+
+    calculateBtn.addEventListener("click", function (event) {
+        let isValid = true;
+
+        if (!principalInput.value || principalInput.value <= 0) {
+            showError(principalInput, "⚠️ Principal amount is required.");
+            isValid = false;
+        } else {
+            clearError(principalInput);
+        }
+
+        if (!rateInput.value || rateInput.value <= 0) {
+            showError(rateInput, "⚠️ Loan rate is required.");
+            isValid = false;
+        } else {
+            clearError(rateInput);
+        }
+
+        if ((!yearInput.value || yearInput.value < 0) && (!monthInput.value || monthInput.value <= 0)) {
+            showError(yearInput, "⚠️ At least one of Years or Months is required.");
+            showError(monthInput, "⚠️ At least one of Years or Months is required.");
+            isValid = false;
+        } else {
+            clearError(yearInput);
+            clearError(monthInput);
+        }
+
+        if (!isValid) {
+            event.preventDefault(); // Stop further actions if validation fails
+        }
+    });
+}
+
+// Apply validation to all down payment inputs
+document.addEventListener("DOMContentLoaded", function () {
+    validateDownPayment("principal", "DownPayment");
+    validateDownPayment("homePrincipal", "homeDownPayment");
+    validateDownPayment("carPrincipal", "carDownPayment");
+
+    validateInputs("principal", "rate", "years", "months", "calculateBtn");
+    validateInputs("homePrincipal", "homeRate", "homeYears", "homeMonths", "homeCalculateBtn");
+    validateInputs("carPrincipal", "carRate", "carYears", "carMonths", "carCalculateBtn");
+});
+
