@@ -6,16 +6,16 @@ let currentTab = 'personal';
 // Initial data
 const defaultData = {
     personal: {
-        principalPercent: 88.9,
-        interestPercent: 11.1
+        principalPercent: 0,
+        interestPercent: 0
     },
     home: {
-        principalPercent: 54.1,
-        interestPercent: 45.9
+        principalPercent: 0,
+        interestPercent: 0
     },
     car: {
-        principalPercent: 84.9,
-        interestPercent: 15.1
+        principalPercent: 0,
+        interestPercent: 0
     }
 };
 
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
     calculateEMI('car');
     
     // Set initial pie chart values
-    updatePieChart(80000, 10000);
+    updatePieChart(0, 0);
 });
 
 // Function to switch between tabs
@@ -96,6 +96,16 @@ function calculateEMI(tabType) {
     const downPayment = parseFloat(document.getElementById(`${prefix}DownPayment`).value) || 0;
     const years = parseInt(document.getElementById(`${prefix}${prefix ? 'Y' : 'y'}ears`).value) || 0;
     const months = parseInt(document.getElementById(`${prefix}${prefix ? 'M' : 'm'}onths`).value) || 0;
+
+    if(downPayment > principal){
+        const error = document.getElementById("error");
+        error.style.color = "red";
+        error.innerHTML = "Principal Amount can not be less than Down payment"
+        setTimeout(() => {
+            error.innerHTML = ""
+        }, 5000);
+        return;
+    }
     
     // Calculate loan amount (principal - down payment)
     const loanAmount = principal - downPayment;
@@ -157,8 +167,8 @@ function updatePieChart(principal, interest) {
     document.getElementById('interestPercentage').textContent = interestPercent.toFixed(1) + '%';
     
     // Get chart segments
-    const principalSegment = document.querySelector('.principal-segment');
-    const interestSegment = document.querySelector('.interest-segment');
+    // const principalSegment = document.querySelector('.principal-segment');
+    // const interestSegment = document.querySelector('.interest-segment');
     
     // Convert percentages to degrees for the arc
     const interestDegrees = (interestPercent / 100) * 360;
@@ -181,8 +191,8 @@ function updatePieChart(principal, interest) {
     }
     
     // Hide the original segments since we're using background gradient
-    principalSegment.style.display = 'none';
-    interestSegment.style.display = 'none';
+    // principalSegment.style.display = 'none';
+    // interestSegment.style.display = 'none';
 }
 
 // Helper function to create clip-path for pie slices
