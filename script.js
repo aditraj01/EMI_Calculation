@@ -20,7 +20,7 @@ const defaultData = {
 };
 
 // Initialize the calculator and chart
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Set up tab switching
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
@@ -32,16 +32,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set up calculate button for all tabs
     document.getElementById('calculateBtn').addEventListener('click', () => {
         const result = calculateEMI('personal');
+        console.log(result);
         updatePieChart(result.loanAmount, result.totalInterest);
         animateResults('personal');
     });
-    
+
     document.getElementById('homeCalculateBtn').addEventListener('click', () => {
         const result = calculateEMI('home');
         updatePieChart(result.loanAmount, result.totalInterest);
         animateResults('home');
     });
-    
+
     document.getElementById('carCalculateBtn').addEventListener('click', () => {
         const result = calculateEMI('car');
         updatePieChart(result.loanAmount, result.totalInterest);
@@ -52,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
     calculateEMI('personal');
     calculateEMI('home');
     calculateEMI('car');
-    
+
     // Set initial pie chart values
     updatePieChart(0, 0);
 });
@@ -61,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function switchTab(tabType) {
     // Update current tab
     currentTab = tabType;
-    
+
     // Update active tab state
     tabs.forEach(tab => {
         if (tab.getAttribute('data-tab') === tabType) {
@@ -70,7 +71,7 @@ function switchTab(tabType) {
             tab.classList.remove('active');
         }
     });
-    
+
     // Show appropriate tab content
     tabContents.forEach(content => {
         if (content.id === tabType) {
@@ -79,7 +80,7 @@ function switchTab(tabType) {
             content.classList.remove('active');
         }
     });
-    
+
     // Calculate and update the chart for the selected tab
     const result = calculateEMI(tabType);
     updatePieChart(result.loanAmount, result.totalInterest);
@@ -89,7 +90,7 @@ function switchTab(tabType) {
 // Calculate EMI and update UI for a specific tab
 function calculateEMI(tabType) {
     const prefix = tabType === 'personal' ? '' : tabType;
-    
+
     // Get inputs
     const principal = parseFloat(document.getElementById(`${prefix}${prefix ? 'P' : 'p'}rincipal`).value) || 0;
     const rate = parseFloat(document.getElementById(`${prefix}${prefix ? 'R' : 'r'}ate`).value) || 0;
@@ -97,25 +98,31 @@ function calculateEMI(tabType) {
     const years = parseInt(document.getElementById(`${prefix}${prefix ? 'Y' : 'y'}ears`).value) || 0;
     const months = parseInt(document.getElementById(`${prefix}${prefix ? 'M' : 'm'}onths`).value) || 0;
 
-    // if(downPayment > principal){
-    //     const error = document.getElementById("error");
-    //     error.style.color = "red";
-    //     error.innerHTML = "Principal Amount can not be less than Down payment"
-    //     setTimeout(() => {
-    //         error.innerHTML = ""
-    //     }, 5000);
-    //     return;
-    // }
-    
+    if (downPayment > principal) {
+        document.getElementById(`${prefix}${prefix ? 'E' : 'e'}mi`).textContent = "";
+        document.getElementById(`${prefix}TotalPrincipal`).textContent = "";
+        document.getElementById(`${prefix}TotalInterest`).textContent = "";
+        document.getElementById(`${prefix}TotalAmount`).textContent = "";
+        if (currentTab === tabType) {
+            document.getElementById('chartEmi').textContent = 0;
+        }
+        return {
+            loanAmount: 0,
+            totalInterest: 0,
+            totalPayment: 0,
+            emi: 0
+        };
+    }
+
     // Calculate loan amount (principal - down payment)
     const loanAmount = principal - downPayment;
-    
+
     // Calculate total months
     const totalMonths = (years * 12) + months;
-    
+
     // Calculate monthly interest rate
     const monthlyRate = (rate / 12) / 100;
-    
+
     // Calculate EMI using formula: EMI = [P x R x (1+R)^N]/[(1+R)^N-1]
     let emi = 0;
     if (loanAmount > 0 && totalMonths > 0 && rate > 0) {
@@ -123,22 +130,22 @@ function calculateEMI(tabType) {
         const denominator = Math.pow(1 + monthlyRate, totalMonths) - 1;
         emi = numerator / denominator;
     }
-    
+
     // Calculate total payment and interest
     const totalPayment = emi * totalMonths;
     const totalInterest = totalPayment - loanAmount;
-    
+
     // Update UI with calculated values
     document.getElementById(`${prefix}${prefix ? 'E' : 'e'}mi`).textContent = formatCurrency(emi);
     document.getElementById(`${prefix}TotalPrincipal`).textContent = formatCurrency(loanAmount);
     document.getElementById(`${prefix}TotalInterest`).textContent = formatCurrency(totalInterest);
     document.getElementById(`${prefix}TotalAmount`).textContent = formatCurrency(totalPayment);
-    
+
     // If this is the current tab, update the chart EMI display
     if (currentTab === tabType) {
         document.getElementById('chartEmi').textContent = formatCurrency(emi);
     }
-    
+
     return {
         loanAmount,
         totalInterest,
@@ -155,27 +162,39 @@ function formatCurrency(value) {
 // Update pie chart based on principal and interest values
 function updatePieChart(principal, interest) {
     const total = principal + interest;
-    
-    if (total <= 0) return;
-    
+    const chart = document.querySelector('.pie-chart');
+    if (total < 0) return;
+
+    if (total === 0) {
+        const interestPercent = 0;
+        const interestDegrees = (interestPercent / 100) * 360;
+        document.getElementById('principalPercentage').textContent = "";
+        document.getElementById('interestPercentage').textContent = "";
+        chart.style.background = `conic-gradient(
+            rgba(82, 109, 254, 0.9) 0deg ${interestDegrees}deg,
+            rgba(232, 237, 250, 0.9) ${interestDegrees}deg 360deg
+        )`;
+        return;
+    }
+
     // Calculate percentages
     const principalPercent = (principal / total) * 100;
     const interestPercent = (interest / total) * 100;
-    
+
     // Update percentage text
     document.getElementById('principalPercentage').textContent = principalPercent.toFixed(1) + '%';
     document.getElementById('interestPercentage').textContent = interestPercent.toFixed(1) + '%';
-    
+
     // Get chart segments
     // const principalSegment = document.querySelector('.principal-segment');
     // const interestSegment = document.querySelector('.interest-segment');
-    
+
     // Convert percentages to degrees for the arc
     const interestDegrees = (interestPercent / 100) * 360;
-    
+
     // For the donut style, we'll use conic-gradient instead of clip-path
-    const chart = document.querySelector('.pie-chart');
-    
+
+
     if (interestPercent <= 0) {
         // All principal
         chart.style.background = 'rgba(232, 237, 250, 0.9)';
@@ -189,7 +208,7 @@ function updatePieChart(principal, interest) {
             rgba(232, 237, 250, 0.9) ${interestDegrees}deg 360deg
         )`;
     }
-    
+
     // Hide the original segments since we're using background gradient
     // principalSegment.style.display = 'none';
     // interestSegment.style.display = 'none';
@@ -202,18 +221,18 @@ function createPieSlice(startAngle, endAngle) {
     const y1 = 50 + 50 * Math.sin((startAngle - 90) * (Math.PI / 180));
     const x2 = 50 + 50 * Math.cos((endAngle - 90) * (Math.PI / 180));
     const y2 = 50 + 50 * Math.sin((endAngle - 90) * (Math.PI / 180));
-    
+
     // For angles > 180 degrees, we need a different approach
     const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;
-    
+
     // Create polygon instead of trying to use SVG path syntax in clip-path
     if (endAngle - startAngle >= 360) {
         return 'circle(50% at 50% 50%)';
     }
-    
+
     // Generate points for the polygon
     let points = `50% 50%, ${x1}% ${y1}%`;
-    
+
     // For large arcs, add intermediate points
     if (largeArcFlag) {
         const midAngle = startAngle + (endAngle - startAngle) / 2;
@@ -221,9 +240,9 @@ function createPieSlice(startAngle, endAngle) {
         const yMid = 50 + 50 * Math.sin((midAngle - 90) * (Math.PI / 180));
         points += `, ${xMid}% ${yMid}%`;
     }
-    
+
     points += `, ${x2}% ${y2}%`;
-    
+
     return `polygon(${points})`;
 }
 
@@ -231,13 +250,13 @@ function createPieSlice(startAngle, endAngle) {
 function animateResults(tabType) {
     const prefix = tabType === 'personal' ? '' : tabType;
     const resultValues = document.querySelectorAll(`#${tabType} .result-value`);
-    
+
     resultValues.forEach(value => {
         value.classList.remove('updated');
         void value.offsetWidth; // Trigger reflow
         value.classList.add('updated');
     });
-    
+
     // Animate pie chart
     document.querySelector('.pie-chart').style.animation = 'pulse 0.5s ease';
     setTimeout(() => {
