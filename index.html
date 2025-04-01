@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EMI Calculator</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="container">
 
@@ -16,184 +18,188 @@
             </div>
             <h1>EMI Calculator</h1>
         </header>
-        
+
         <div class="tabs">
             <div class="tab active" data-tab="personal">Personal</div>
             <div class="tab" data-tab="home">Home</div>
             <div class="tab" data-tab="car">Car</div>
         </div>
-        
+
         <div class="content-wrapper">
             <div class="calculator-container">
                 <div class="tab-content active" id="personal">
                     <div class="input-group">
-                        <label for="principal">Principal Amount</label>
-                        <input type="number" id="principal" placeholder="Enter amount"  min="0" required = "true">
+                        <label for="personal-principal">Principal Amount</label>
+                        <input type="number" id="personal-principal" placeholder="Enter amount" min="0" required>
                     </div>
-                    
+
                     <div class="input-group">
-                        <label for="rate">Loan rate (%)</label>
-                        <input type="number" id="rate" placeholder="Enter interest rate" step="0.1"  min="0" max="25" required = "true">
+                        <label for="personal-rate">Loan rate (%)</label>
+                        <input type="number" id="personal-rate" placeholder="Enter interest rate" step="0.1" min="0"
+                            max="25" required>
                     </div>
-                    
+
                     <div class="input-group">
-                        <label for="DownPayment">Down payment</label>
-                        <input type="number" id="DownPayment" placeholder="Enter down payment" required>
+                        <label for="personal-downpayment">Down payment</label>
+                        <input type="number" id="personal-downpayment" placeholder="Enter down payment" required>
                     </div>
-                    
+
                     <div class="input-group time-group">
                         <label>Time</label>
                         <div class="time-inputs">
                             <div>
-                                <input type="number" id="years" placeholder="Years" min="0" required>
+                                <input type="number" id="personal-years" placeholder="Years" min="0" required>
                                 <span>Years</span>
                             </div>
                             <div>
-                                <input type="number" id="months" placeholder="Months" min="0" max="12" required> 
+                                <input type="number" id="personal-months" placeholder="Months" min="0" max="12"
+                                    required>
                                 <span>Months</span>
                             </div>
                         </div>
                     </div>
-                    
-                    <button id="calculateBtn" class="calculate-btn">Calculate EMI</button>
-                    
+
+                    <button id="personal-calculate-btn" class="calculate-btn" type="button">Calculate EMI</button>
+
                     <div class="result-container">
                         <div class="result-item">
                             <span class="result-label">Monthly EMI</span>
-                            <span class="result-value" id="emi"></span>
+                            <span class="result-value" id="personal-emi"></span>
                         </div>
-                        
+
                         <div class="result-item">
                             <span class="result-label">Principal amount</span>
-                            <span class="result-value" id="TotalPrincipal"></span>
+                            <span class="result-value" id="personal-totalprincipal"></span>
                         </div>
-                        
+
                         <div class="result-item">
                             <span class="result-label">Total Interest</span>
-                            <span class="result-value" id="TotalInterest"></span>
+                            <span class="result-value" id="personal-totalinterest"></span>
                         </div>
-                        
+
                         <div class="result-item">
                             <span class="result-label">Total amount</span>
-                            <span class="result-value" id="TotalAmount"></span>
+                            <span class="result-value" id="personal-totalamount"></span>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="tab-content" id="home">
                     <div class="input-group">
-                        <label for="homePrincipal">Principal Amount</label>
-                        <input type="number" id="homePrincipal" placeholder="Enter amount" min="0" required>
+                        <label for="home-principal">Principal Amount</label>
+                        <input type="number" id="home-principal" placeholder="Enter amount" min="0" required>
                     </div>
-                    
+
                     <div class="input-group">
-                        <label for="homeRate">Loan rate (%)</label>
-                        <input type="number" id="homeRate" placeholder="Enter interest rate" step="0.1" min="0" max="25" required>
+                        <label for="home-rate">Loan rate (%)</label>
+                        <input type="number" id="home-rate" placeholder="Enter interest rate" step="0.1" min="0"
+                            max="25" required>
                     </div>
-                    
+
                     <div class="input-group">
-                        <label for="homeDownPayment">Down payment</label>
-                        <input type="number" id="homeDownPayment" placeholder="Enter down payment" min="0" required>
+                        <label for="home-downpayment">Down payment</label>
+                        <input type="number" id="home-downpayment" placeholder="Enter down payment" min="0" required>
                     </div>
-                    
+
                     <div class="input-group time-group">
                         <label>Time</label>
                         <div class="time-inputs">
                             <div>
-                                <input type="number" id="homeYears" placeholder="Years" min="0" required>
+                                <input type="number" id="home-years" placeholder="Years" min="0" required>
                                 <span>Years</span>
                             </div>
                             <div>
-                                <input type="number" id="homeMonths" placeholder="Months"  min="0" max="12" required>
+                                <input type="number" id="home-months" placeholder="Months" min="0" max="12" required>
                                 <span>Months</span>
                             </div>
                         </div>
                     </div>
-                    
-                    <button id="homeCalculateBtn" class="calculate-btn">Calculate EMI</button>
-                    
+
+                    <button id="home-calculate-btn" class="calculate-btn" type="button">Calculate EMI</button>
+
                     <div class="result-container">
                         <div class="result-item">
                             <span class="result-label">Monthly EMI</span>
-                            <span class="result-value" id="homeEmi"></span>
+                            <span class="result-value" id="home-emi"></span>
                         </div>
-                        
+
                         <div class="result-item">
                             <span class="result-label">Principal amount</span>
-                            <span class="result-value" id="homeTotalPrincipal"></span>
+                            <span class="result-value" id="home-totalprincipal"></span>
                         </div>
-                        
+
                         <div class="result-item">
                             <span class="result-label">Total Interest</span>
-                            <span class="result-value" id="homeTotalInterest"></span>
+                            <span class="result-value" id="home-totalinterest"></span>
                         </div>
-                        
+
                         <div class="result-item">
                             <span class="result-label">Total amount</span>
-                            <span class="result-value" id="homeTotalAmount"></span>
+                            <span class="result-value" id="home-totalamount"></span>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="tab-content" id="car">
                     <div class="input-group">
-                        <label for="carPrincipal">Principal Amount</label>
-                        <input type="number" id="carPrincipal" placeholder="Enter amount" min="0" required>
+                        <label for="car-principal">Principal Amount</label>
+                        <input type="number" id="car-principal" placeholder="Enter amount" min="0" required>
                     </div>
-                    
+
                     <div class="input-group">
-                        <label for="carRate">Loan rate (%)</label>
-                        <input type="number" id="carRate" placeholder="Enter interest rate" step="0.1" min="0" max="25" required>
+                        <label for="car-rate">Loan rate (%)</label>
+                        <input type="number" id="car-rate" placeholder="Enter interest rate" step="0.1" min="0" max="25"
+                            required>
                     </div>
-                    
+
                     <div class="input-group">
-                        <label for="carDownPayment">Down payment</label>
-                        <input type="number" id="carDownPayment" placeholder="Enter down payment" min="0" required>
+                        <label for="car-downpayment">Down payment</label>
+                        <input type="number" id="car-downpayment" placeholder="Enter down payment" min="0" required>
                     </div>
-                    
+
                     <div class="input-group time-group">
                         <label>Time</label>
                         <div class="time-inputs">
                             <div>
-                                <input type="number" id="carYears" placeholder="Years"  min="0" required>
+                                <input type="number" id="car-years" placeholder="Years" min="0" required>
                                 <span>Years</span>
                             </div>
                             <div>
-                                <input type="number" id="carMonths" placeholder="Months"  min="0" max="12" required>
+                                <input type="number" id="car-months" placeholder="Months" min="0" max="12" required>
                                 <span>Months</span>
                             </div>
                         </div>
                     </div>
-                    
-                    <button id="carCalculateBtn" class="calculate-btn">Calculate EMI</button>
-                    
+
+                    <button id="car-calculate-btn" class="calculate-btn" type="button">Calculate EMI</button>
+
                     <div class="result-container">
                         <div class="result-item">
                             <span class="result-label">Monthly EMI</span>
-                            <span class="result-value" id="carEmi"></span>
+                            <span class="result-value" id="car-emi"></span>
                         </div>
-                        
+
                         <div class="result-item">
                             <span class="result-label">Principal amount</span>
-                            <span class="result-value" id="carTotalPrincipal"></span>
+                            <span class="result-value" id="car-totalprincipal"></span>
                         </div>
-                        
+
                         <div class="result-item">
                             <span class="result-label">Total Interest</span>
-                            <span class="result-value" id="carTotalInterest"></span>
+                            <span class="result-value" id="car-totalinterest"></span>
                         </div>
-                        
+
                         <div class="result-item">
                             <span class="result-label">Total amount</span>
-                            <span class="result-value" id="carTotalAmount"></span>
+                            <span class="result-value" id="car-totalamount"></span>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <div class="chart-container">
                 <h2>Loan Breakdown</h2>
-                
+
                 <div class="pie-chart-wrapper">
                     <div class="pie-chart">
                         <!-- Segments are now created using CSS background instead -->
@@ -203,7 +209,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="chart-legend">
                     <div class="legend-item">
                         <span class="color-box principal-color"></span>
@@ -214,15 +220,16 @@
                         <span>Interest amount</span>
                     </div>
                 </div>
-                
+
                 <div class="percentage-info">
-                    <div>Principal: <span id="principalPercentage"></span></div>
-                    <div>Interest: <span id="interestPercentage"></span></div>
+                    <div>Principal: <span id="principal-percentage"></span></div>
+                    <div>Interest: <span id="interest-percentage"></span></div>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <script src="script.js"></script>
 </body>
+
 </html>
