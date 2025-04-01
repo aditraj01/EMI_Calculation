@@ -179,6 +179,33 @@ input::placeholder {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+.reset-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    margin: 25px 0;
+    background: linear-gradient(to right, #ea3b05, #FF3D00);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.reset-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.reset-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
 .calculate-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);

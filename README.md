@@ -1,3 +1,3 @@
 # EMI_Calculation
  this is a EMI calculation website 
-![Image!](ss/image.png)
+![Image!](ss/latest-image.jpeg)

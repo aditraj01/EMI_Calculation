@@ -250,6 +250,17 @@ function calculateEMI(tabType) {
     };
 }
 
+function resetButton(tabType) {
+    reset(tabType);
+    document.getElementById(`${tabType}-principal`).value = "";
+    document.getElementById(`${tabType}-rate`).value = "";
+    document.getElementById(`${tabType}-downpayment`).value = "";
+    document.getElementById(`${tabType}-years`).value = "";
+    document.getElementById(`${tabType}-months`).value = "";
+    updatePieChart(0, 0);
+    document.getElementById('chartEmi').textContent = 0;
+}
+
 //function to validate the principal amount
 function addValidation(inputId, validationFn, errorMessage) {
     document.getElementById(inputId).addEventListener('change', function () {
@@ -308,3 +319,15 @@ addValidation("car-downpayment", function (value) {
     const principal = parseFloat(document.getElementById("car-principal").value);
     return value !== "" && value >= 0 && value <= principal;
 }, "⚠️Down payment must be less than or equal to principal amount.");
+
+document.getElementById("personal-reset-btn").addEventListener('click', () => {
+    resetButton('personal');
+});
+
+document.getElementById("home-reset-btn").addEventListener('click', () => {
+    resetButton('home');
+});
+
+document.getElementById("car-reset-btn").addEventListener('click', () => {
+    resetButton('car');
+});
