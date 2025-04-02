@@ -1,6 +1,6 @@
 //DOM elements
 const tabs = document.querySelectorAll(".tab");
-const tabContents = document.querySelectorAll('.tab-content');
+const updatePieCharttabContents = document.querySelectorAll('.tab-content');
 let currentTab = 'personal';
 
 // Initialize the chart with the default tab
@@ -12,7 +12,7 @@ switchTab(currentTab);
 for (let tab of tabs) {
     tab.addEventListener('click', () => {
         const tabType = tab.getAttribute('data-tab');
-        calculateAndUpdateChart(tabType);
+        
         switchTab(tabType);
     })
 }
@@ -25,6 +25,7 @@ function switchTab(tabType) {
     tabs.forEach(tab => {
         if (tab.getAttribute('data-tab') === tabType) {
             tab.classList.add('active');
+            calculateAndUpdateChart(tabType);
         } else {
             tab.classList.remove('active');
         }
@@ -43,7 +44,7 @@ function switchTab(tabType) {
 //Function for calculating and updating the chart
 function calculateAndUpdateChart(tabType) {
     const result = calculateEMI(tabType);
-    updatePieChart(result.loanAmount, result.totalInterest);
+    (result.loanAmount, result.totalInterest);
     animateResults(tabType);
 }
 
