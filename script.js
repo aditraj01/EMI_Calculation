@@ -1,6 +1,6 @@
 //DOM elements
 const tabs = document.querySelectorAll(".tab");
-const updatePieCharttabContents = document.querySelectorAll('.tab-content');
+const tabContents = document.querySelectorAll('.tab-content');
 let currentTab = 'personal';
 
 // Initialize the chart with the default tab
