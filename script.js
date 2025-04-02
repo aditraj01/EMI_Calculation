@@ -300,8 +300,8 @@ addValidation("car-principal", value => value !== "" && value >= 0, "⚠️Princ
 
 //function to validate the rate of interest
 addValidation("personal-rate", value => value !== "" && value >= 15 && value <= 25, "⚠️Rate must be between 15% and 25%.");
-addValidation("home-rate", value => value !== "" && value >= 10 && value <= 15, "⚠️Rate must be between 10 and 15%.");
-addValidation("car-rate", value => value !== "" && value >= 10 && value <= 25, "⚠️Rate must be between 0 and 25%.");
+addValidation("home-rate", value => value !== "" && value >= 10 && value <= 15, "⚠️Rate must be between 10% and 15%.");
+addValidation("car-rate", value => value !== "" && value >= 10 && value <= 25, "⚠️Rate must be between 10% and 25%.");
 //function to validate the downpayment amount
 // addValidation("personal-downpayment", value => value !== "" && value >= 0, "⚠️Down payment must be greater than 0.");
 addValidation("home-downpayment", value => value !== "" && value >= 0, "⚠️Down payment must be greater than 0.");
