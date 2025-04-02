@@ -92,22 +92,20 @@ function calculateAndUpdateChart(tabType) {
     animateResults(tabType);
 }
 
-//Adding event listeners to calculate button
-document.getElementById("personal-calculate-btn").addEventListener('click', () => {
-    calculateAndUpdateChart('personal');
-});
-
-document.getElementById("home-calculate-btn").addEventListener('click', () => {
-    calculateAndUpdateChart('home');
-});
-
-document.getElementById("car-calculate-btn").addEventListener('click', () => {
-    calculateAndUpdateChart('car');
-});
-
 // Format currency values
 function formatCurrency(value) {
-    return '₹' + value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    const numberParts = value.toFixed(0).split('.');
+    let integerPart = numberParts[0];
+    const decimalPart = numberParts[1] ? '.' + numberParts[1] : '';
+
+    // Format the integer part for the Indian numbering system
+    const lastThreeDigits = integerPart.slice(-3);
+    const otherDigits = integerPart.slice(0, -3);
+    if (otherDigits !== '') {
+        integerPart = otherDigits.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + lastThreeDigits;
+    }
+
+    return '₹' + integerPart + decimalPart;
 }
 
 // Update pie chart based on principal and interest values
@@ -242,16 +240,11 @@ function calculateEMI(tabType) {
         return { loanAmount: 0, totalInterest: 0, totalPayment: 0, emi: 0 };
     }
 
-    if (years < 0 || months < 0 || months > 11) {
+    if (years < 0 || months < 0 || months > 11 || (years === 0 && months === 0)) {
         reset(tabType);
         return { loanAmount: 0, totalInterest: 0, totalPayment: 0, emi: 0 };
     }
-    if (downPayment < 0) {
-        reset(tabType);
-        return { loanAmount: 0, totalInterest: 0, totalPayment: 0, emi: 0 };
-    }
-
-    if (downPayment > principal) {
+    if (downPayment < 0 || downPayment > principal) {
         reset(tabType);
         return { loanAmount: 0, totalInterest: 0, totalPayment: 0, emi: 0 };
     }
@@ -363,18 +356,6 @@ addValidation("car-downpayment", function (value) {
     return !isNaN(value) && value >= 0 && value <= principal;
 }, "⚠️Down payment must be less than or equal to principal amount.");
 
-document.getElementById("personal-reset-btn").addEventListener('click', () => {
-    resetButton('personal');
-});
-
-document.getElementById("home-reset-btn").addEventListener('click', () => {
-    resetButton('home');
-});
-
-document.getElementById("car-reset-btn").addEventListener('click', () => {
-    resetButton('car');
-});
-
 addValidation("personal-months", value => {
     const years = parseInt(document.getElementById("personal-years").value);
     return !isNaN(value) && value >= 0 && value < 12 && !(years === 0 && value === 0);
@@ -389,3 +370,28 @@ addValidation("car-months", value => {
     const years = parseInt(document.getElementById("car-years").value);
     return !isNaN(value) && value >= 0 && value < 12 && !(years === 0 && value === 0);
 }, "⚠️If years is 0, months cannot also be 0.");
+
+//Adding event listeners to calculate button
+document.getElementById("personal-calculate-btn").addEventListener('click', () => {
+    calculateAndUpdateChart('personal');
+});
+
+document.getElementById("home-calculate-btn").addEventListener('click', () => {
+    calculateAndUpdateChart('home');
+});
+
+document.getElementById("car-calculate-btn").addEventListener('click', () => {
+    calculateAndUpdateChart('car');
+});
+
+document.getElementById("personal-reset-btn").addEventListener('click', () => {
+    resetButton('personal');
+});
+
+document.getElementById("home-reset-btn").addEventListener('click', () => {
+    resetButton('home');
+});
+
+document.getElementById("car-reset-btn").addEventListener('click', () => {
+    resetButton('car');
+});
