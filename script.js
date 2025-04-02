@@ -5,6 +5,7 @@ let currentTab = 'personal';
 
 // Initialize the chart with the default tab
 switchTab(currentTab);
+calculateEMI(currentTab);
 
 
 //Adding Event Listener to all tabs
