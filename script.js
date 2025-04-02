@@ -4,7 +4,6 @@ const tabContents = document.querySelectorAll('.tab-content');
 let currentTab = 'personal';
 
 // Initialize the chart with the default tab
-calculateAndUpdateChart(currentTab);
 switchTab(currentTab);
 
 
@@ -12,7 +11,6 @@ switchTab(currentTab);
 for (let tab of tabs) {
     tab.addEventListener('click', () => {
         const tabType = tab.getAttribute('data-tab');
-        
         switchTab(tabType);
     })
 }
@@ -25,7 +23,6 @@ function switchTab(tabType) {
     tabs.forEach(tab => {
         if (tab.getAttribute('data-tab') === tabType) {
             tab.classList.add('active');
-            calculateAndUpdateChart(tabType);
         } else {
             tab.classList.remove('active');
         }
@@ -41,10 +38,57 @@ function switchTab(tabType) {
     });
 }
 
+function validateFields(tabType) {
+    let isValid = true;
+
+    // List of required fields for the tab
+    const requiredFields = [
+        `${tabType}-principal`,
+        `${tabType}-rate`,
+        `${tabType}-years`,
+        `${tabType}-months`
+    ];
+
+    // Add downpayment field for non-personal tabs
+    if (tabType !== 'personal') {
+        requiredFields.push(`${tabType}-downpayment`);
+    }
+
+    // Validate each field
+    requiredFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        const value = parseFloat(field.value);
+
+        if (isNaN(value) || value < 0 || field.value.trim() === "") {
+            showError(field, "⚠️This field is required and must be valid.");
+            isValid = false;
+        } else {
+            clearError(field);
+        }
+    });
+
+    // Additional validation: If years is 0, months cannot be 0
+    const yearsField = document.getElementById(`${tabType}-years`);
+    const monthsField = document.getElementById(`${tabType}-months`);
+    const years = parseInt(yearsField.value);
+    const months = parseInt(monthsField.value);
+
+    if (years === 0 && months === 0) {
+        showError(monthsField, "⚠️If years is 0, months cannot also be 0.");
+        isValid = false;
+    }
+
+    return isValid;
+}
+
 //Function for calculating and updating the chart
 function calculateAndUpdateChart(tabType) {
+    // Validate fields before calculation
+    if (!validateFields(tabType)) {
+        return; // Stop if validation fails
+    }
     const result = calculateEMI(tabType);
-    (result.loanAmount, result.totalInterest);
+    updatePieChart(result.loanAmount, result.totalInterest);
     animateResults(tabType);
 }
 
@@ -165,11 +209,9 @@ function calculateEMI(tabType) {
     // Get inputs
     const principal = parseFloat(document.getElementById(`${tabType}-principal`).value);
     const rate = parseFloat(document.getElementById(`${tabType}-rate`).value);
-    const downPayment = 0;
-    if (tabType === 'personal') {
-        const downPayment = 0;
-    } else {
-        const downPayment = parseFloat(document.getElementById(`${tabType}-downpayment`).value);
+    let downPayment = 0;
+    if (tabType !== 'personal') {
+        downPayment = parseFloat(document.getElementById(`${tabType}-downpayment`).value);
     }
     const years = parseInt(document.getElementById(`${tabType}-years`).value);
     const months = parseInt(document.getElementById(`${tabType}-months`).value);
@@ -209,22 +251,10 @@ function calculateEMI(tabType) {
         return { loanAmount: 0, totalInterest: 0, totalPayment: 0, emi: 0 };
     }
 
-    if (rate > 25) {
+    if (downPayment > principal) {
         reset(tabType);
         return { loanAmount: 0, totalInterest: 0, totalPayment: 0, emi: 0 };
     }
-
-    if (downPayment > principal) {
-        reset(tabType);
-        return {
-            loanAmount: 0,
-            totalInterest: 0,
-            totalPayment: 0,
-            emi: 0
-        };
-    }
-
-
 
     // Calculate loan amount (principal - down payment)
     const loanAmount = principal - downPayment;
@@ -267,25 +297,30 @@ function calculateEMI(tabType) {
 }
 
 function resetButton(tabType) {
-    reset(tabType);
+    // Clear input fields
     document.getElementById(`${tabType}-principal`).value = "";
     document.getElementById(`${tabType}-rate`).value = "";
-    if (tabType === 'personal') {
-
-    } else {
-        document.getElementById(`${tabType}-downpayment`).value = "";
+    if (tabType !== 'personal') {
+        document.getElementById(`${tabType}-downpayment`).value = ""; // Clear downpayment for non-personal tabs
     }
-
     document.getElementById(`${tabType}-years`).value = "";
     document.getElementById(`${tabType}-months`).value = "";
+
+    // Clear errors
+    const inputs = document.querySelectorAll(`#${tabType} input`);
+    inputs.forEach(input => {
+        clearError(input); // Clear error messages and reset styles
+    });
+
+    // Reset chart and EMI display
     updatePieChart(0, 0);
     document.getElementById('chartEmi').textContent = 0;
 }
 
 //function to validate the principal amount
 function addValidation(inputId, validationFn, errorMessage) {
-    document.getElementById(inputId).addEventListener('change', function () {
-        const value = this.value;
+    document.getElementById(inputId).addEventListener('input', function () { // Use 'input' event for real-time validation
+        const value = parseFloat(this.value); // Parse the value as a number
         if (!validationFn(value)) {
             showError(this, errorMessage);
         } else {
@@ -294,45 +329,38 @@ function addValidation(inputId, validationFn, errorMessage) {
     });
 }
 
-// Add validation for principal inputs
-addValidation("personal-principal", value => value !== "" && value >= 0, "⚠️Principal must be greater than 0.");
-addValidation("home-principal", value => value !== "" && value >= 0, "⚠️Principal must be greater than 0.");
-addValidation("car-principal", value => value !== "" && value >= 0, "⚠️Principal must be greater than 0.");
+//vatidate the principal amount
+addValidation("personal-principal", value => !isNaN(value) && value > 0, "⚠️Principal must be greater than 0.");
+addValidation("home-principal", value => !isNaN(value) && value > 0, "⚠️Principal must be greater than 0.");
+addValidation("car-principal", value => !isNaN(value) && value > 0, "⚠️Principal must be greater than 0.");
 
-//function to validate the rate of interest
-addValidation("personal-rate", value => value !== "" && value >= 15 && value <= 25, "⚠️Rate must be between 15% and 25%.");
-addValidation("home-rate", value => value !== "" && value >= 10 && value <= 15, "⚠️Rate must be between 10% and 15%.");
-addValidation("car-rate", value => value !== "" && value >= 10 && value <= 25, "⚠️Rate must be between 10% and 25%.");
-//function to validate the downpayment amount
-// addValidation("personal-downpayment", value => value !== "" && value >= 0, "⚠️Down payment must be greater than 0.");
-addValidation("home-downpayment", value => value !== "" && value >= 0, "⚠️Down payment must be greater than 0.");
-addValidation("car-downpayment", value => value !== "" && value >= 0, "⚠️Down payment must be greater than 0.");
+// Validate rate of interest
+addValidation("personal-rate", value => !isNaN(value) && value >= 15 && value <= 25, "⚠️Rate must be between 15% and 25%.");
+addValidation("home-rate", value => !isNaN(value) && value >= 10 && value <= 15, "⚠️Rate must be between 10% and 15%.");
+addValidation("car-rate", value => !isNaN(value) && value >= 10 && value <= 25, "⚠️Rate must be between 10% and 25%.");
 
-//function to validate the years of loan
-addValidation("personal-years", value => value !== "" && value >= 0, "⚠️Years of loan must be greater than 0.");
-addValidation("home-years", value => value !== "" && value >= 0, "⚠️Years of loan must be greater than 0.");
-addValidation("car-years", value => value !== "" && value >= 0, "⚠️Years of loan must be greater than 0.");
+// Validate downpayment
+addValidation("home-downpayment", value => !isNaN(value) && value >= 0, "⚠️Down payment must be greater than or equal to 0.");
+addValidation("car-downpayment", value => !isNaN(value) && value >= 0, "⚠️Down payment must be greater than or equal to 0.");
 
+// Validate years of loan
+addValidation("personal-years", value => !isNaN(value) && value >= 0, "⚠️Years of loan must be greater than or equal to 0.");
+addValidation("home-years", value => !isNaN(value) && value >= 0, "⚠️Years of loan must be greater than or equal to 0.");
+addValidation("car-years", value => !isNaN(value) && value >= 0, "⚠️Years of loan must be greater than or equal to 0.");
 
-//function to validate the months of loan
-addValidation("personal-months", value => value !== "" && value >= 0 && value < 12, "⚠️Months of loan must be between 0 and 11.");
-addValidation("home-months", value => value !== "" && value >= 0 && value < 12, "⚠️Months of loan must be between 0 and 11.");
-addValidation("car-months", value => value !== "" && value >= 0 && value < 12, "⚠️Months of loan must be between 0 and 11.");
-
-//Downpayment should not be greater than principal amount
-// addValidation("personal-downpayment", function (value) {
-//     const principal = parseFloat(document.getElementById("personal-principal").value);
-//     return value !== "" && value >= 0 && value <= principal;
-// }, "⚠️Down payment must be less than or equal to principal amount.");
+// Validate months of loan
+addValidation("personal-months", value => !isNaN(value) && value >= 0 && value < 12, "⚠️Months of loan must be between 0 and 11.");
+addValidation("home-months", value => !isNaN(value) && value >= 0 && value < 12, "⚠️Months of loan must be between 0 and 11.");
+addValidation("car-months", value => !isNaN(value) && value >= 0 && value < 12, "⚠️Months of loan must be between 0 and 11.");
 
 addValidation("home-downpayment", function (value) {
     const principal = parseFloat(document.getElementById("home-principal").value);
-    return value !== "" && value >= 0 && value <= principal;
+    return !isNaN(value) && value >= 0 && value <= principal;
 }, "⚠️Down payment must be less than or equal to principal amount.");
 
 addValidation("car-downpayment", function (value) {
     const principal = parseFloat(document.getElementById("car-principal").value);
-    return value !== "" && value >= 0 && value <= principal;
+    return !isNaN(value) && value >= 0 && value <= principal;
 }, "⚠️Down payment must be less than or equal to principal amount.");
 
 document.getElementById("personal-reset-btn").addEventListener('click', () => {
@@ -346,3 +374,18 @@ document.getElementById("home-reset-btn").addEventListener('click', () => {
 document.getElementById("car-reset-btn").addEventListener('click', () => {
     resetButton('car');
 });
+
+addValidation("personal-months", value => {
+    const years = parseInt(document.getElementById("personal-years").value);
+    return !isNaN(value) && value >= 0 && value < 12 && !(years === 0 && value === 0);
+}, "⚠️If years is 0, months cannot also be 0.");
+
+addValidation("home-months", value => {
+    const years = parseInt(document.getElementById("home-years").value);
+    return !isNaN(value) && value >= 0 && value < 12 && !(years === 0 && value === 0);
+}, "⚠️If years is 0, months cannot also be 0.");
+
+addValidation("car-months", value => {
+    const years = parseInt(document.getElementById("car-years").value);
+    return !isNaN(value) && value >= 0 && value < 12 && !(years === 0 && value === 0);
+}, "⚠️If years is 0, months cannot also be 0.");
