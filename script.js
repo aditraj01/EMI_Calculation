@@ -12,6 +12,9 @@ for (let tab of tabs) {
     tab.addEventListener('click', () => {
         const tabType = tab.getAttribute('data-tab');
         switchTab(tabType);
+        const result = calculateEMI(tabType);
+        updatePieChart(result.loanAmount, result.totalInterest);
+        animateResults(tabType);
     })
 }
 
