@@ -12,6 +12,7 @@ switchTab(currentTab);
 for (let tab of tabs) {
     tab.addEventListener('click', () => {
         const tabType = tab.getAttribute('data-tab');
+        calculateAndUpdateChart(tabType);
         switchTab(tabType);
     })
 }
@@ -42,7 +43,6 @@ function switchTab(tabType) {
 //Function for calculating and updating the chart
 function calculateAndUpdateChart(tabType) {
     const result = calculateEMI(tabType);
-    console.log(result);
     updatePieChart(result.loanAmount, result.totalInterest);
     animateResults(tabType);
 }
@@ -132,7 +132,6 @@ function animateResults(tabType) {
 function showError(id, message) {
     // Check if an error message already exists
     let existingError = id.parentNode.querySelector(".error");
-    console.log(existingError);
     if (existingError) {
         existingError.textContent = message; // Update the existing error message
     } else {
@@ -165,7 +164,12 @@ function calculateEMI(tabType) {
     // Get inputs
     const principal = parseFloat(document.getElementById(`${tabType}-principal`).value);
     const rate = parseFloat(document.getElementById(`${tabType}-rate`).value);
-    const downPayment = parseFloat(document.getElementById(`${tabType}-downpayment`).value);
+    const downPayment = 0;
+    if (tabType === 'personal') {
+        const downPayment = 0;
+    } else {
+        const downPayment = parseFloat(document.getElementById(`${tabType}-downpayment`).value);
+    }
     const years = parseInt(document.getElementById(`${tabType}-years`).value);
     const months = parseInt(document.getElementById(`${tabType}-months`).value);
 
@@ -180,10 +184,21 @@ function calculateEMI(tabType) {
         reset(tabType);
         return { loanAmount: 0, totalInterest: 0, totalPayment: 0, emi: 0 };
     }
-    if (rate < 0) {
+    if (tabType === 'personal' && (rate < 15 || rate > 25)) {
         reset(tabType);
         return { loanAmount: 0, totalInterest: 0, totalPayment: 0, emi: 0 };
     }
+
+    if (tabType === 'home' && (rate < 10 || rate > 15)) {
+        reset(tabType);
+        return { loanAmount: 0, totalInterest: 0, totalPayment: 0, emi: 0 };
+    }
+
+    if (tabType === 'car' && (rate < 10 || rate > 25)) {
+        reset(tabType);
+        return { loanAmount: 0, totalInterest: 0, totalPayment: 0, emi: 0 };
+    }
+
     if (years < 0 || months < 0 || months > 11) {
         reset(tabType);
         return { loanAmount: 0, totalInterest: 0, totalPayment: 0, emi: 0 };
@@ -254,7 +269,12 @@ function resetButton(tabType) {
     reset(tabType);
     document.getElementById(`${tabType}-principal`).value = "";
     document.getElementById(`${tabType}-rate`).value = "";
-    document.getElementById(`${tabType}-downpayment`).value = "";
+    if (tabType === 'personal') {
+
+    } else {
+        document.getElementById(`${tabType}-downpayment`).value = "";
+    }
+
     document.getElementById(`${tabType}-years`).value = "";
     document.getElementById(`${tabType}-months`).value = "";
     updatePieChart(0, 0);
@@ -279,12 +299,11 @@ addValidation("home-principal", value => value !== "" && value >= 0, "⚠️Prin
 addValidation("car-principal", value => value !== "" && value >= 0, "⚠️Principal must be greater than 0.");
 
 //function to validate the rate of interest
-addValidation("personal-rate", value => value !== "" && value >= 0, "⚠️Rate must be greater than 0.");
-addValidation("home-rate", value => value !== "" && value >= 0, "⚠️Rate must be greater than 0.");
-addValidation("car-rate", value => value !== "" && value >= 0, "⚠️Rate must be greater than 0.");
-
+addValidation("personal-rate", value => value !== "" && value >= 15 && value <= 25, "⚠️Rate must be between 15% and 25%.");
+addValidation("home-rate", value => value !== "" && value >= 10 && value <= 15, "⚠️Rate must be between 10 and 15%.");
+addValidation("car-rate", value => value !== "" && value >= 10 && value <= 25, "⚠️Rate must be between 0 and 25%.");
 //function to validate the downpayment amount
-addValidation("personal-downpayment", value => value !== "" && value >= 0, "⚠️Down payment must be greater than 0.");
+// addValidation("personal-downpayment", value => value !== "" && value >= 0, "⚠️Down payment must be greater than 0.");
 addValidation("home-downpayment", value => value !== "" && value >= 0, "⚠️Down payment must be greater than 0.");
 addValidation("car-downpayment", value => value !== "" && value >= 0, "⚠️Down payment must be greater than 0.");
 
@@ -299,16 +318,11 @@ addValidation("personal-months", value => value !== "" && value >= 0 && value < 
 addValidation("home-months", value => value !== "" && value >= 0 && value < 12, "⚠️Months of loan must be between 0 and 11.");
 addValidation("car-months", value => value !== "" && value >= 0 && value < 12, "⚠️Months of loan must be between 0 and 11.");
 
-//Loan rate should not be greater than 25%
-addValidation("personal-rate", value => value !== "" && value >= 0 && value <= 25, "⚠️Rate of interest must be less than or equal to 25%.");
-addValidation("home-rate", value => value !== "" && value >= 0 && value <= 25, "⚠️Rate of interest must be less than or equal to 25%.");
-addValidation("car-rate", value => value !== "" && value >= 0 && value <= 25, "⚠️Rate of interest must be less than or equal to 25%.");
-
 //Downpayment should not be greater than principal amount
-addValidation("personal-downpayment", function (value) {
-    const principal = parseFloat(document.getElementById("personal-principal").value);
-    return value !== "" && value >= 0 && value <= principal;
-}, "⚠️Down payment must be less than or equal to principal amount.");
+// addValidation("personal-downpayment", function (value) {
+//     const principal = parseFloat(document.getElementById("personal-principal").value);
+//     return value !== "" && value >= 0 && value <= principal;
+// }, "⚠️Down payment must be less than or equal to principal amount.");
 
 addValidation("home-downpayment", function (value) {
     const principal = parseFloat(document.getElementById("home-principal").value);
