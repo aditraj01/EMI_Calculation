@@ -302,7 +302,7 @@ function resetButton(tabType) {
     }
     document.getElementById(`${tabType}-years`).value = "";
     document.getElementById(`${tabType}-months`).value = "";
-
+    reset(tabType);
     // Clear errors
     const inputs = document.querySelectorAll(`#${tabType} input`);
     inputs.forEach(input => {
