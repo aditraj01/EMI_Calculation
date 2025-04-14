@@ -42,6 +42,32 @@ function switchTab(tabType) {
     });
 }
 
+function timeValidation(tabType) {
+    const yearsField = document.getElementById(`${tabType}-years`);
+    const monthsField = document.getElementById(`${tabType}-months`);
+    const errorId = document.getElementById(`${tabType}-time-period`);
+    const years = parseInt(yearsField.value);
+    const months = parseInt(monthsField.value);
+
+    const maxTimePeriod = {
+        personal: 120, // 10 years
+        home: 360, // 30 years
+        car: 84 // 7 years
+    };
+
+    const maxMonths = maxTimePeriod[tabType];
+    const totalMonths = years * 12 + months;
+
+    if (totalMonths > maxMonths) {
+        showError(errorId, `⚠️${tabType.charAt(0).toUpperCase() + tabType.slice(1)} loan period cannot exceed ${maxTimePeriod[tabType] / 12} years.`);
+        return false;
+    } else {
+        clearError(errorId); // Clear error if valid
+        return true;
+    }
+
+}
+
 function validateFields(tabType) {
     let isValid = true;
 
@@ -91,6 +117,12 @@ function calculateAndUpdateChart(tabType) {
     if (!validateFields(tabType)) {
         return; // Stop if validation fails
     }
+
+    // Validate time period
+    if (!timeValidation(tabType)) {
+        return; // Stop if time validation fails
+    }
+    // Calculate EMI and update chart
     const result = calculateEMI(tabType);
     updatePieChart(result.loanAmount, result.totalInterest);
     animateResults(tabType);
@@ -206,6 +238,52 @@ function reset(tabType) {
     }
 }
 
+function checkValidation(tabType, principal, rate, downPayment, years, months) {
+
+    if (isNaN(principal) || isNaN(rate) || isNaN(downPayment) || isNaN(years) || isNaN(months)) {
+        return false;
+    }
+
+    // Validate inputs
+    if (principal < 0) {
+        return false;
+    }
+    if (tabType === 'personal' && (rate < 15 || rate > 25)) {
+        return false;
+    }
+
+    if (tabType === 'home' && (rate < 10 || rate > 15)) {
+        return false;
+    }
+
+    if (tabType === 'car' && (rate < 10 || rate > 25)) {
+        return false;
+    }
+
+    if (years < 0 || months < 0 || months > 11 || (years === 0 && months === 0)) {
+        return false;
+    }
+    if (downPayment < 0 || downPayment > principal) {
+        return false;
+    }
+
+    let timePeriod = years * 12 + months;
+
+    if (tabType === 'home' && timePeriod > 360) {
+        return false;
+    }
+
+    if (tabType === 'car' && timePeriod > 84) {
+        return false;
+    }
+
+    if (tabType === 'personal' && timePeriod > 120) {
+        return false;
+    }
+
+    return true;
+}
+
 // Calculate EMI and update UI for a specific tab
 function calculateEMI(tabType) {
     // Get inputs
@@ -218,40 +296,12 @@ function calculateEMI(tabType) {
     const years = parseInt(document.getElementById(`${tabType}-years`).value);
     const months = parseInt(document.getElementById(`${tabType}-months`).value);
 
-
-    if (isNaN(principal) || isNaN(rate) || isNaN(downPayment) || isNaN(years) || isNaN(months)) {
-        reset(tabType);
-        return { loanAmount: 0, totalInterest: 0, totalPayment: 0, emi: 0 };
-    }
-
     // Validate inputs
-    if (principal < 0) {
-        reset(tabType);
-        return { loanAmount: 0, totalInterest: 0, totalPayment: 0, emi: 0 };
-    }
-    if (tabType === 'personal' && (rate < 15 || rate > 25)) {
+    if (!checkValidation(tabType, principal, rate, downPayment, years, months)) {
         reset(tabType);
         return { loanAmount: 0, totalInterest: 0, totalPayment: 0, emi: 0 };
     }
 
-    if (tabType === 'home' && (rate < 10 || rate > 15)) {
-        reset(tabType);
-        return { loanAmount: 0, totalInterest: 0, totalPayment: 0, emi: 0 };
-    }
-
-    if (tabType === 'car' && (rate < 10 || rate > 25)) {
-        reset(tabType);
-        return { loanAmount: 0, totalInterest: 0, totalPayment: 0, emi: 0 };
-    }
-
-    if (years < 0 || months < 0 || months > 11 || (years === 0 && months === 0)) {
-        reset(tabType);
-        return { loanAmount: 0, totalInterest: 0, totalPayment: 0, emi: 0 };
-    }
-    if (downPayment < 0 || downPayment > principal) {
-        reset(tabType);
-        return { loanAmount: 0, totalInterest: 0, totalPayment: 0, emi: 0 };
-    }
 
     // Calculate loan amount (principal - down payment)
     const loanAmount = principal - downPayment;
@@ -310,6 +360,7 @@ function resetButton(tabType) {
     });
 
     // Reset chart and EMI display
+    reset(tabType);
     updatePieChart(0, 0);
     document.getElementById('chartEmi').textContent = 0;
 }
@@ -345,35 +396,17 @@ addValidation("personal-years", value => !isNaN(value) && value >= 0, "⚠️Yea
 addValidation("home-years", value => !isNaN(value) && value >= 0, "⚠️Years of loan must be greater than or equal to 0.");
 addValidation("car-years", value => !isNaN(value) && value >= 0, "⚠️Years of loan must be greater than or equal to 0.");
 
-// Validate months of loan
-addValidation("personal-months", value => !isNaN(value) && value >= 0 && value < 12, "⚠️Months of loan must be between 0 and 11.");
-addValidation("home-months", value => !isNaN(value) && value >= 0 && value < 12, "⚠️Months of loan must be between 0 and 11.");
-addValidation("car-months", value => !isNaN(value) && value >= 0 && value < 12, "⚠️Months of loan must be between 0 and 11.");
-
+// Validate downpayment against principal amount for home loan
 addValidation("home-downpayment", function (value) {
     const principal = parseFloat(document.getElementById("home-principal").value);
     return !isNaN(value) && value >= 0 && value <= principal;
 }, "⚠️Down payment must be less than or equal to principal amount.");
 
+// Validate downpayment against principal amount for car loan
 addValidation("car-downpayment", function (value) {
     const principal = parseFloat(document.getElementById("car-principal").value);
     return !isNaN(value) && value >= 0 && value <= principal;
 }, "⚠️Down payment must be less than or equal to principal amount.");
-
-addValidation("personal-months", value => {
-    const years = parseInt(document.getElementById("personal-years").value);
-    return !isNaN(value) && value >= 0 && value < 12 && !(years === 0 && value === 0);
-}, "⚠️If years is 0, months cannot also be 0.");
-
-addValidation("home-months", value => {
-    const years = parseInt(document.getElementById("home-years").value);
-    return !isNaN(value) && value >= 0 && value < 12 && !(years === 0 && value === 0);
-}, "⚠️If years is 0, months cannot also be 0.");
-
-addValidation("car-months", value => {
-    const years = parseInt(document.getElementById("car-years").value);
-    return !isNaN(value) && value >= 0 && value < 12 && !(years === 0 && value === 0);
-}, "⚠️If years is 0, months cannot also be 0.");
 
 //Adding event listeners to calculate button
 document.getElementById("personal-calculate-btn").addEventListener('click', () => {
@@ -398,4 +431,36 @@ document.getElementById("home-reset-btn").addEventListener('click', () => {
 
 document.getElementById("car-reset-btn").addEventListener('click', () => {
     resetButton('car');
+});
+
+['personal', 'home', 'car'].forEach(tabType => {
+    const yearsField = document.getElementById(`${tabType}-years`);
+    const monthsField = document.getElementById(`${tabType}-months`);
+
+    // Validate both fields together for the "years and months cannot both be 0" error
+    const validateYearsAndMonths = () => {
+        const yearsValue = parseInt(yearsField.value) || 0; // Dynamically fetch the latest value
+        const monthsValue = parseInt(monthsField.value) || 0; // Dynamically fetch the latest value
+
+        if (yearsValue === 0 && monthsValue === 0) {
+            showError(monthsField, "⚠️If years is 0, months cannot also be 0.");
+        } else {
+            clearError(monthsField);
+        }
+    };
+
+    // Add event listeners to both fields
+    yearsField.addEventListener('input', validateYearsAndMonths);
+    monthsField.addEventListener('input', () => {
+        const monthsValue = parseInt(monthsField.value) || 0; // Dynamically fetch the latest value
+        const yearsValue = parseInt(yearsField.value) || 0; // Dynamically fetch the latest value
+
+        if (isNaN(monthsValue) || monthsValue < 0 || monthsValue >= 12) {
+            showError(monthsField, "⚠️Months must be between 0 and 11.");
+        } else if (yearsValue === 0 && monthsValue === 0) {
+            showError(monthsField, "⚠️If years is 0, months cannot also be 0.");
+        } else {
+            clearError(monthsField);
+        }
+    });
 });
